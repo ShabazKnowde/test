@@ -1,11 +1,18 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
-st.text('Fixed width text')
-st.markdown('_Markdown_') # see *
-st.latex(r''' e^{i\pi} + 1 = 0 ''')
-st.write('Most objects') # df, err, func, keras!
-st.write(['st', 'is <', 3]) # see *
-st.title('My title')
-st.header('My header')
-st.subheader('My sub')
+from celery import Celery
+
+# Create a Celery instance
+celery = Celery('myapp', broker='redis://localhost:6379/0')
+
+@celery.task
+def background_task():
+    # Your background task logic here
+    return "Task completed!"
+
+# Streamlit app
+st.title("Streamlit with Celery")
+
+if st.button("Run Background Task"):
+    result = background_task.delay()
+    st.spinner("Running task...")
+    st.text(result.get())
